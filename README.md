@@ -2,7 +2,7 @@
 Project for Programmable Web Project course.
 
 ## Course project requirements
-Api should follow ROA and REST principles. Therefore we shall do it that way.
+Api should follow ROA and REST principles.
 
 ## Description
 This project is about a distributed info screen system.
