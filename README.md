@@ -1,20 +1,10 @@
-# Nautto
-Project for Programmable Web Project course.
+# PWP SPRING 2021
+# PROJECT NAME
+# Group information
+* Student 1. Name and email
+* Student 2. Name and email
+* Student 3. Name and email
 
-## Course project requirements
-Api should follow ROA and REST principles.
+__Remember to include all required documentation and HOWTOs, including how to create and populate the database, how to run and test the API, the url to the entrypoint and instructions on how to setup and run the client__
 
-## Description
-This project is about a distributed info screen system.
 
-Ideal deploy location for a client would be a apartment houses lobby.
-
-Background API is responsible of holding, managing and distributing resources for clients (Users and devices).
-
-Users create views for the devices.
-
-Devices reside at the location.
-
-and thereforth...
-
-This project has potential to work as a business case in the real world.
