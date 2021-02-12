@@ -1,14 +1,16 @@
 # Meetings notes
 
 ## Meeting 1.
-* **DATE:**
-* **ASSISTANTS:**
+* **DATE:** 12.2.2021
+* **ASSISTANTS:** Ivan Sanchez
 
 ### Minutes
-*Summary of what was discussed during the meeting*
+We discussed the basic idea of the project. We need to use the proper format for the git repo and the wiki. We discussed the exercises and where we are.
 
 ### Action points
-*List here the actions points discussed with assistants*
+* Start the wiki page (deadline was over already)
+* Think about different use cases for the API
+* Fill the wiki page for the first deadline.
 
 
 ### Comments from staff
