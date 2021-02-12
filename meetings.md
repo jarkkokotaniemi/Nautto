@@ -2,7 +2,7 @@
 
 ## Meeting 1.
 * **DATE:** 12.2.2021
-* **ASSISTANTS:** Ivan Sanchez
+* **ASSISTANTS:** Iván Sánchez Milara
 
 ### Minutes
 We discussed the basic idea of the project. We need to use the proper format for the git repo and the wiki. We discussed the exercises and where we are.
