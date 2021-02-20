@@ -56,3 +56,7 @@ Run command:
 ```powershell
 flask run
 ```
+
+## Database dump
+
+Database dump is in the dump folder
