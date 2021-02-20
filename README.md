@@ -19,7 +19,7 @@ pip3 install .
 $env:FLASK_APP="nautto"
 ```
 
-## Initializing the database
+## Initialize the database
 
 Before starting the application, you must initialize the database. This can be done by running the following command:
 
@@ -37,6 +37,16 @@ To drop all current tables use:
 
 ```powershell
 flask db-drop
+```
+
+## Test the database
+
+The database tests can be ran with the following command:
+
+```powershell
+python3 -m pytest tests 
+# OR with coverage
+python3 -m pytest tests --cov=nautto
 ```
 
 ## Run the API
