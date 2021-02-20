@@ -9,7 +9,7 @@
 
 ## Installation
 
-To run the application you should run the following commands (on Windows):
+To run the application you should run the following commands (on PowerShell):
 
 ```powersehll
 git clone https://github.com/jarkkokotaniemi/Nautto
