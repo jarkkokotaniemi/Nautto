@@ -1,12 +1,12 @@
 from . import db
 
-sets = db.Table(
+set_layouts = db.Table(
     "sets",
     db.Column("set_id", db.Integer, db.ForeignKey("set.id"), primary_key=True),
     db.Column("layout_id", db.Integer, db.ForeignKey("layout.id"), primary_key=True)
 )
 
-layouts = db.Table(
+layout_widgets = db.Table(
     "layouts",
     db.Column("layout_id", db.Integer, db.ForeignKey("layout.id"), primary_key=True),
     db.Column("widget_id", db.Integer, db.ForeignKey("widget.id"), primary_key=True)
@@ -31,7 +31,7 @@ class Set(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id", ondelete="CASCADE"))
 
     user = db.relationship("User", back_populates="sets", uselist=False)
-    layouts = db.relationship("Layout", secondary=sets, back_populates="sets")
+    layouts = db.relationship("Layout", secondary=set_layouts, back_populates="sets")
 
     def __repr__(self):
         return f'{self.name} <{self.id}>'
@@ -43,8 +43,8 @@ class Layout(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id", ondelete="CASCADE"))
 
     user = db.relationship("User", back_populates="layouts", uselist=False)
-    widgets = db.relationship("Widget", secondary=layouts, back_populates="layouts")
-    sets = db.relationship("Set", secondary=sets, back_populates="layouts")
+    widgets = db.relationship("Widget", secondary=layout_widgets, back_populates="layouts")
+    sets = db.relationship("Set", secondary=set_layouts, back_populates="layouts")
 
     def __repr__(self):
         return f'{self.name} <{self.id}>'
@@ -53,12 +53,12 @@ class Widget(db.Model):
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True)
     name = db.Column(db.String(128), nullable=False)
     description = db.Column(db.String(256), nullable=True)
-    type = db.Column(db.String(), nullable=False)
+    type = db.Column(db.String(64), nullable=False)
     content = db.Column(db.String(1024), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id", ondelete="CASCADE"))
 
     user = db.relationship("User", back_populates="widgets", uselist=False)
-    layouts = db.relationship("Layout", secondary=layouts, back_populates="widgets")
+    layouts = db.relationship("Layout", secondary=layout_widgets, back_populates="widgets")
 
     def __repr__(self):
         return f'{self.name} <{self.id}>'
