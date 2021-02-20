@@ -23,12 +23,13 @@ def create_app(test_config=None):
         os.makedirs(app.instance_path)
     except OSError:
         pass
-
+    
     db.init_app(app)
 
     from . import models
-    app.cli.add_command(models.init_db_command)
-    app.cli.add_command(models.gen_test_data)
+    app.cli.add_command(models.db_init_cmd)
+    app.cli.add_command(models.db_drop_cmd)
+    app.cli.add_command(models.db_populate_cmd)
 
     @app.route("/")
     def index():
