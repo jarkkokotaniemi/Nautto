@@ -1,0 +1,556 @@
+FORMAT: 1A
+HOST: http://localhost:5000/
+
+# Nautto API
+
+This API is a simple widget metadata service for users, layouts and sets. The API serves JSON data.
+
+# Group Link Relations
+
+This section described custom link relations defined in this API. These are not resources.
+
+## add-widget
+
+This is a control that is used to add an album to the associated collection resource. The control includes a JSON schema and must be accessed with POST. 
+
+## widgets-all
+
+Leads to the root level albums collection which is a list of all albums known to the API regardless of user. This collection can be sorted using query parameters as described in the resource documentation.
+
+## widgets-by
+
+Leads to a collection resoruce that includes all albums by the associated user.
+
+## users-all
+
+Leads to the root level users collection which is a list of all users known to the API. 
+
+## delete
+
+Deletes the associated resource. Must be accessed with DELETE
+
+# Group Profiles
+
+This section includes resource profiles which provide semantic descriptions for the attributes of each resource, as well as the list of controls (by link relation) available from that resource.
+
+## User Profile
+
+Profile definition for all user related resources.
+
+### Link Relations
+
+This section lists all possible link relations associated with users; not all of them are necessarily present on each resource type. The following link relations from the mumeta namespace are used:
+
+ * [add-user](reference/link-relations/add-user)
+ * [widgets-all](reference/link-relations/widgets-all)
+ * [layouts-all](reference/link-relations/layouts-all)
+ * [sets-all](reference/link-relations/sets-all)
+ * [users-all](reference/link-relations/users-all)
+ * [delete](reference/link-relations/delete)
+ 
+The following [IANA RFC5988](http://www.iana.org/assignments/link-relations/link-relations.xhtml) link relations are also used:
+
+ * author
+ * collection
+ * edit
+ * profile
+ * self
+ 
+### Semantic Descriptors
+
+#### Data Type User
+
+ * `name`: User name of the account. Mandatory. [STRING]
+ * `description`: Users description. Optional. [STRING]
+
+## Error Profile
+
+Profile definition for all errors returned by the API. See [Mason error control](https://github.com/JornWildt/Mason/blob/master/Documentation/Mason-draft-2.md#property-name-error) for more information about errors.
+
++ Attributes
+
+    + resource_url (string, required) - URI of the resource the error was generated from. 
+ 
+## Widget Profile
+
+Profile definition for all widget related resources.
+
+### Link Relations
+
+This section lists all possible link relations associated with widgets; not all of them are necessarily present on each resource type. The following link relations from the mumeta namespace are used:
+
+ * [widgets-by](reference/link-relations/widgets-by)
+ * [delete](reference/link-relations/delete)
+ 
+The following [IANA RFC5988](http://www.iana.org/assignments/link-relations/link-relations.xhtml) link relations are also used:
+
+ * author
+ * edit
+ * profile
+ * self
+
+### Semantic Descriptors
+
+#### Data Type Widget
+
+ * `name`: Widgets name. Mandatory. [STRING]
+ * `description`: Widgets description. Optional. [STRING]
+ * `type`: Widgets type. Mandatory. [STRING]
+ * `content`: Widgets content. Mandatory. [STRING]
+ 
+# Group Entry
+
+This group contains the entry point of the API
+
+## Entry Point [/api/]
+
+### Get entry point [GET]
+
+Get the API entry point
+
++ Request
+
+    + Headers
+    
+            Accept: application/vnd.mason+json
+            
++ Response 200 (application/vnd.mason+json)
+
+    + Body
+    
+            {
+                "@namespaces": {
+                    "mumeta": {
+                        "name": "/musicmeta/link-relations#"
+                    }
+                },
+                "@controls": {
+                    "mumeta:albums-all": {
+                        "href": "/api/albums/"
+                    },
+                    "mumeta:users-all": {
+                        "href": "/api/users/"
+                    }
+                }
+            }
+
+ 
+# Group User
+
+All of these resources use the [User Profile](reference/profiles/user-profile). In error scenarios [Error Profile](reference/profiles/error-profile) is used.
+
+## User Collection [/api/users/]
+
+A list of all user known to the API. This collection can be sorted using the sortby query parameter. For each user, all column values except ID are shown in their collection entries, more information can be found by following the `self` relation of each users.
+
+### List all users [GET]
+
+Get a list of all users known to the API.
+
++ Relation: users-all
++ Request
+
+    + Headers
+    
+            Accept: application/vnd.mason+json
+
++ Response 200 (application/vnd.mason+json)
+    
+    + Body
+
+            {
+              "@namespaces": {
+                "mumeta": {
+                  "name": "/musicmeta/link-relations#"
+                }
+              },
+              "@controls": {
+                "self": {
+                  "href": "/api/users/"
+                },
+                "mumeta:albums-all": {
+                  "href": "/api/albums/",
+                  "title": "All albums"
+                },
+                "mumeta:add-user": {
+                  "href": "/api/users/",
+                  "title": "Add a new user",
+                  "encoding": "json",
+                  "method": "POST",
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "description": "Users name",
+                        "type": "string"
+                      },
+                      "unique_name": {
+                        "description": "Unique name",
+                        "type": "string"
+                      },
+                      "formed": {
+                        "description": "Forming date",
+                        "type": "string",
+                        "pattern": "^[0-9]{4}-[01][0-9]-[0-3][0-9]$"
+                      },
+                      "disbanded": {
+                        "description": "Disbanded date",
+                        "type": "string",
+                        "pattern": "^[0-9]{4}-[01][0-9]-[0-3][0-9]$"
+                      },
+                      "location": {
+                        "description": "Location of the user",
+                        "type": "string"
+                      }
+                    },
+                    "required": ["name", "unique_name", "location"]
+                  }
+                }
+              },
+              "items": [
+                {
+                  "name": "Scandal",
+                  "unique_name": "scandal",
+                  "location": "test1",
+                  "@controls": {
+                    "self": {
+                      "href": "/api/users/scandal/"
+                    },
+                    "profile": {
+                      "href": "/profiles/user/"
+                    }
+                  }
+                },
+                {
+                  "name": "Emperor",
+                  "unique_name": "emperor",
+                  "location": "test2",
+                  "@controls": {
+                    "self": {
+                      "href": "/api/users/emperor/"
+                    },
+                    "profile": {
+                      "href": "/profiles/user/"
+                    }
+                  }
+                },
+                {
+                  "name": "Thorns",
+                  "unique_name": "thorns",
+                  "location": "test3",
+                  "@controls": {
+                    "self": {
+                      "href": "/api/users/thorns/"
+                    },
+                    "profile": {
+                      "href": "/profiles/user/"
+                    }
+                  }
+                }
+              ]
+            }
+
+### Add user [POST]
+
+Adds a new user to the collection. The user representation must be valid against the user schema.
+
++ Relation: add-user
++ Request (application/json)
+
+    + Headers
+    
+            Accept: application/vnd.mason+json
+        
+    + Body
+    
+            {
+                "name":"Guerilla",
+                "unique_name":"guerilla",
+                "formed": "1990-02-02",
+                "disbanded": "1992-02-02",
+                "location": "London, Cambridge"
+            }
+
++ Response 201
+
+    + Headers
+    
+            Location: /api/users/
+
+
++ Response 400 (application/vnd.mason+json)
+
+    The client is trying to send a JSON document that doesn't validate against the schema.
+
+    + Body
+    
+            {
+                "resource_url": "/api/users/",
+                "@error": {
+                    "@message": "Invalid JSON document",
+                    "@messages": [
+                        "'5:04' does not match '^[0-9]{4}-[01][0-9]-[0-3][0-9]$'
+                        
+                        Failed validating 'pattern' in schema['properties']['formed']:
+                        {'description': 'User formed',
+                        'pattern': '^[0-9]{4}-[01][0-9]-[0-3][0-9]$',
+                        'type': 'string'}
+                        
+                        On instance
+                        ['formed']: '5:04'"
+                    ]
+                },
+                "@controls": {
+                    "profile": {
+                        "href": "/profiles/error-profile/"
+                    }
+                }
+            }
+        
++ Response 415 (application/vnd.mason+json)
+
+    The client sent a request with the wrong content type or the request body was not valid JSON.
+
+    + Body
+        
+            {
+                "resource_url": "/api/users/",
+                "@error": {
+                    "@message": "Unsupported media type",
+                    "@messages": [
+                        "Use JSON"
+                    ]
+                },
+                "@controls": {
+                    "profile": {
+                        "href": "/profiles/error-profile/"
+                    }
+                }
+            }
+     
+## User [/api/users/{user}/]
+
+This resource represents an single user, as identified by the user's unique name.
+
++ Parameters
+
+    + user: scandal (string) - user's unique name (unique_name)
+
+
+### User information [GET]
+
+Get the user representation.
+
++ Relation: self
++ Request
+
+    + Headers
+    
+            Accept: application/vnd.mason+json
+        
++ Response 200 (application/vnd.mason+json)
+
+    + Body
+    
+            {
+              "@namespaces": {
+                "mumeta": {
+                  "name": "/musicmeta/link-relations#"
+                }
+              },
+              "name": "Scandal",
+              "unique_name": "scandal",
+              "formed": "2014-12-03",
+              "disbanded": "2014-12-03",
+              "location": "test",
+              "@controls": {
+                "self": {
+                  "href": "/api/users/scandal/"
+                },
+                "profile": {
+                  "href": "/profiles/user/"
+                },
+                "collection": {
+                  "href": "/api/users/"
+                },
+                "edit": {
+                  "href": "/api/users/scandal/",
+                  "title": "Edit this user",
+                  "encoding": "json",
+                  "method": "PUT",
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "description": "Users name",
+                        "type": "string"
+                      },
+                      "unique_name": {
+                        "description": "Unique name",
+                        "type": "string"
+                      },
+                      "formed": {
+                        "description": "Forming date",
+                        "type": "string",
+                        "pattern": "^[0-9]{4}-[01][0-9]-[0-3][0-9]$"
+                      },
+                      "disbanded": {
+                        "description": "Disbanded date",
+                        "type": "string",
+                        "pattern": "^[0-9]{4}-[01][0-9]-[0-3][0-9]$"
+                      },
+                      "location": {
+                        "description": "Location of the user",
+                        "type": "string"
+                      }
+                    },
+                    "required": ["name", "unique_name", "location"]
+                  }
+                },
+                "mumeta:delete": {
+                  "href": "/api/users/scandal/albums/Hello World/",
+                  "title": "Delete this album",
+                  "method": "DELETE"
+                },
+                "mumeta:albums-by": {
+                  "href": "/api/users/scandal/albums/"
+                }
+              }
+            }
+
+
++ Response 404 (application/vnd.mason+json)
+
+    The client is trying to access an user that doesn't exist.
+
+    + Body
+    
+            {
+                "resource_url": "/api/users/vandal/",
+                "@error": {
+                    "@message": "User not found",
+                    "@messages": [null]
+                },
+                "@controls": {
+                    "profile": {
+                        "href": "/profiles/error/"
+                    }
+                }
+            }
+
+### Edit user information [PUT]
+
+Replace the user's representation with a new one. Missing optinal fields will be set to null. Must validate against the user schema. 
+
++ Relation: edit
++ Request (application/json)
+
+    + Headers
+        
+            Accept: application/vnd.mason+json
+        
+    + Body
+    
+            {
+                "name":"Scandal",
+                "unique_name":"scandal-1",
+                "formed": "1990-02-02",
+                "disbanded": "1992-02-02",
+                "location": "Ireland"
+            }
+        
++ Response 204
+
+
++ Response 400 (application/vnd.mason+json)
+
+    The client is trying to send a JSON document that doesn't validate against the schema, or has non-existent release date.
+
+    + Body
+    
+            {
+                "resource_url": "/api/users/scandal/",
+                "@error": {
+                    "@message": "Invalid date format",
+                    "@messages": [
+                        "Format date must be written in ISO format (YYYY-MM-DD)"
+                    ]
+                },
+                "@controls": {
+                    "profile": {
+                        "href": "/profiles/error/"
+                    }
+                }
+            }
+
++ Response 404 (application/vnd.mason+json)
+
+    The client is trying to edit an user that doesn't exist. 
+
+    + Body
+    
+            {
+                "resource_url": "/api/users/vandal/",
+                "@error": {
+                    "@message": "User not found",
+                    "@messages": [null]
+                },
+                "@controls": {
+                    "profile": {
+                        "href": "/profiles/error/"
+                    }
+                }
+            }
+        
++ Response 415 (application/vnd.mason+json)
+
+    The client sent a request with the wrong content type or the request body was not valid JSON.
+
+    + Body
+        
+            {
+                "resource_url": "/api/users/scandal/",
+                "@error": {
+                    "@message": "Unsupported media type",
+                    "@messages": [
+                        "Use JSON"
+                    ]
+                },
+                "@controls": {
+                    "profile": {
+                        "href": "/profiles/error-profile/"
+                    }
+                }
+            }
+
+### Delete user [DELETE]
+
+Deletes the user.
+
++ Relation: delete
++ Request
+
+    + Headers
+        
+            Accept: application/vnd.mason+json
+        
++ Response 204
+
++ Response 404 (application/vnd.mason+json)
+
+    The client is trying to delete an user that doesn't exist. 
+
+    + Body
+    
+            {
+                "resource_url": "/api/users/vandal/",
+                "@error": {
+                    "@message": "User not found",
+                    "@messages": [null]
+                },
+                "@controls": {
+                    "profile": {
+                        "href": "/profiles/error/"
+                    }
+                }
+            }
