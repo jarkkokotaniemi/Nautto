@@ -769,6 +769,27 @@ Get a list of widgets by the leyout.
                     }
                 }
             }
+            
+### Add widget to layout [POST]
+
+Adds a widget to the layout.
+
++ Relation: add-widget
++ Request (application/json)
+
+    + Headers
+    
+            Accept: application/vnd.mason+json
+        
+    + Body
+    
+            {
+                "id":"1"
+            }
+
++ Response 201 (application/vnd.mason+json)
+
++ Response 404 (application/vnd.mason+json)
 
 ## Widget [/api/widgets/{widget}/]
 
@@ -1166,7 +1187,7 @@ This is an layout collection by given set using the set's unique id.
 
     + set: 1 (string) - set's unique id (id)
 
-### List layouts by user [GET]
+### List layouts of set [GET]
 
 Get a list of layouts of a set.
 
@@ -1234,6 +1255,26 @@ Get a list of layouts of a set.
                     }
                 }
             }
+            
+### Add layout to set [POST]
+
+Adds a layout to the set.
+
++ Relation: add-layout
++ Request (application/json)
+
+    + Headers
+    
+            Accept: application/vnd.mason+json
+        
+    + Body
+    
+            {
+                "id":"1"
+            }
+
++ Response 201 (application/vnd.mason+json)
+
 
 ## Layout [/api/layouts/{layout}/]
 
