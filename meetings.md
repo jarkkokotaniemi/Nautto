@@ -35,14 +35,18 @@ We discussed the second deadline. Descriptions should be longer than 256 charact
 *ONLY USED BY COURSE STAFF: Additional comments from the course staff*
 
 ## Meeting 3.
-* **DATE:**
-* **ASSISTANTS:**
+* **DATE:** 23.3.2021
+* **ASSISTANTS:** Mika Oja
 
 ### Minutes
-*Summary of what was discussed during the meeting*
+We discussed the third deadline. We checked the state machine map. We looked at the Apiary documentation.
 
 ### Action points
-*List here the actions points discussed with assistants*
+* Move sets, layouts and widgets POST method under user. (?)
+* Collections do not have to show all the information of the items.
+* Header of POST method's Location needs to have the ID of the item.
+* Add link relation to attach widget or layout to the above hierarchy.
+* Justify REST conformance more accurately. 
 
 
 ### Comments from staff
