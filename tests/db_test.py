@@ -106,22 +106,113 @@ def test_create_instances(app):
         assert db_set.user == db_user
         assert db_set in db_layout.sets
 
-def test_widget_ondelete_user(app):
+def test_ondelete_user(app):
     """
-    Tests that measurement's sensor foreign key is set to null when the sensor
-    is deleted.
+    Tests that right stuff gets removed when user is deleted
     """
     
     with app.app_context():
         user = _get_user()
         widget = _get_widget()
+        layout = _get_layout()
+        sets = _get_set()
         widget.user = user
+        layout.user = user
+        sets.user = user
+        layout.widgets.append(widget)
+        sets.layouts.append(layout)
         db.session.add(user)
         db.session.add(widget)
+        db.session.add(layout)
+        db.session.add(sets)
         db.session.commit()
+        assert User.query.count() == 1
         db.session.delete(user)
+        assert not User.query.all() 
+        assert not Widget.query.all() 
+        assert not Layout.query.all()
+        assert not Set.query.all()
+
+def test_ondelete_widget(app):
+    """
+    Tests that other right stuff gets removed when widget is deleted
+    """
+    
+    with app.app_context():
+        user = _get_user()
+        widget = _get_widget()
+        layout = _get_layout()
+        sets = _get_set()
+        widget.user = user
+        layout.user = user
+        sets.user = user
+        layout.widgets.append(widget)
+        sets.layouts.append(layout)
+        db.session.add(user)
+        db.session.add(widget)
+        db.session.add(layout)
+        db.session.add(sets)
         db.session.commit()
-        assert widget.user is None
+        assert Widget.query.count() == 1
+        db.session.delete(widget)
+        assert User.query.all() 
+        assert not Widget.query.all() 
+        assert Layout.query.all()
+        assert Set.query.all()
+
+def test_ondelete_layout(app):
+    """
+    Tests that other right stuff gets removed when layout is deleted
+    """
+    
+    with app.app_context():
+        user = _get_user()
+        widget = _get_widget()
+        layout = _get_layout()
+        sets = _get_set()
+        widget.user = user
+        layout.user = user
+        sets.user = user
+        layout.widgets.append(widget)
+        sets.layouts.append(layout)
+        db.session.add(user)
+        db.session.add(widget)
+        db.session.add(layout)
+        db.session.add(sets)
+        db.session.commit()
+        assert Layout.query.count() == 1
+        db.session.delete(layout)
+        assert User.query.all() 
+        assert Widget.query.all() 
+        assert not Layout.query.all()
+        assert Set.query.all()
+
+def test_ondelete_set(app):
+    """
+    Tests that other right stuff gets removed when set is deleted
+    """
+    
+    with app.app_context():
+        user = _get_user()
+        widget = _get_widget()
+        layout = _get_layout()
+        sets = _get_set()
+        widget.user = user
+        layout.user = user
+        sets.user = user
+        layout.widgets.append(widget)
+        sets.layouts.append(layout)
+        db.session.add(user)
+        db.session.add(widget)
+        db.session.add(layout)
+        db.session.add(sets)
+        db.session.commit()
+        assert Set.query.count() == 1
+        db.session.delete(sets)
+        assert User.query.all() 
+        assert Widget.query.all() 
+        assert Layout.query.all()
+        assert not Set.query.all()
 
 def test_user_columns(app):
     """
