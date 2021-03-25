@@ -9,6 +9,22 @@ This API is a simple widget metadata service for users, layouts and sets. The AP
 
 This section described custom link relations defined in this API. These are not resources.
 
+## users-all
+
+Leads to root level user collection, which is a list all users known to the API.
+
+## sets-all
+
+Leads to root level set collection, which is a list all sets known to the API.
+
+## layouts-all
+
+Leads to root level layout collection, which is a list all layouts known to the API.
+
+## widgets-all
+
+Leads to root level widget collection, which is a list all widgets known to the API.
+
 ## widgets-by
 
 Leads to a collection resource that includes all widgets by the associated user.
@@ -20,14 +36,6 @@ Leads to a collection resource that includes all laytouts by the associated user
 ## sets-by
 
 Leads to a collection resource that includes all sets by the associated user.
-
-## widgets-of
-
-Leads to a collection resource that includes all widgets by the associated layout.
-
-## layouts-of
-
-Leads to a collection resource that includes all layouts by the associated set.
 
 ## add-widget
 
@@ -74,6 +82,7 @@ The following [IANA RFC5988](http://www.iana.org/assignments/link-relations/link
  * edit
  * profile
  * self
+ * up
  
 ### Semantic Descriptors
 
@@ -99,6 +108,7 @@ The following [IANA RFC5988](http://www.iana.org/assignments/link-relations/link
  * edit
  * profile
  * self
+ * up
 
 ### Semantic Descriptors
 
@@ -117,7 +127,6 @@ Profile definition for all layout related resources.
 
 This section lists all possible link relations associated with layouts; not all of them are necessarily present on each resource type. The following link relations from the nautto namespace are used:
 
- * [widgets-of](reference/link-relations/widgets-of)
  * [add-layout](reference/link-relations/add-layout)
  * [delete](reference/link-relations/delete)
  
@@ -127,12 +136,13 @@ The following [IANA RFC5988](http://www.iana.org/assignments/link-relations/link
  * edit
  * profile
  * self
+ * up
 
 ### Semantic Descriptors
 
-#### Data Type Widget
+#### Data Type Layout
 
- * `name`: Widgets name. Mandatory. [STRING]
+ * `name`: Layout name. Mandatory. [STRING]
  * `description`: Widgets description. Optional. [STRING]
 
 ## Set Profile
@@ -143,7 +153,6 @@ Profile definition for all set related resources.
 
 This section lists all possible link relations associated with sets; not all of them are necessarily present on each resource type. The following link relations from the nautto namespace are used:
 
- * [layouts-of](reference/link-relations/layouts-of)
  * [add-set](reference/link-relations/add-set)
  * [delete](reference/link-relations/delete)
  
@@ -156,9 +165,9 @@ The following [IANA RFC5988](http://www.iana.org/assignments/link-relations/link
 
 ### Semantic Descriptors
 
-#### Data Type Widget
+#### Data Type Set
 
- * `name`: Widgets name. Mandatory. [STRING]
+ * `name`: Set name. Mandatory. [STRING]
  * `description`: Widgets description. Optional. [STRING]
 
 
@@ -197,8 +206,17 @@ Get the API entry point
                     }
                 },
                 "@controls": {
-                    "self": {
-                        "href": "/api/users/{user}/"
+                    "nautto:users-all": {
+                        "href": "/api/users/"
+                    },
+                    "nautto:sets-all": {
+                        "href": "/api/sets/"
+                    },
+                    "nautto:layouts-all": {
+                        "href": "/api/layouts/"
+                    },
+                    "nautto:widgets-all": {
+                        "href": "/api/widgets/"
                     }
                 }
             }
@@ -262,7 +280,6 @@ Get a list of all users known to the API.
                 {
                   "id": 1,
                   "name": "Test User 1",
-                  "description": "User for testing, number 1",
                   "@controls": {
                     "self": {
                         "href": "/api/users/1/"
@@ -297,7 +314,7 @@ Adds a new user to the collection. The user representation must be valid against
 
     + Headers
     
-            Location: /api/users/
+            Location: /api/users/2/
         
 + Response 415 (application/vnd.mason+json)
 
@@ -316,7 +333,7 @@ Adds a new user to the collection. The user representation must be valid against
                 "@controls": {
                     "profile": {
                         "href": "/profiles/error-profile/"
-                    }
+                    },
                 }
             }
      
@@ -515,7 +532,7 @@ Deletes the user.
 
 ## Widget Collection [/api/widgets/]
 
-A list of all widgets known to the API. This collection can be sorted using the sortby query parameter. For each widget, all column values except ID are shown in their collection entries, more information can be found by following the `self` relation of each widget.
+A list of all widgets known to the API.
 
 ### List all widgets [GET]
 
@@ -567,9 +584,6 @@ Get a list of all widgets known to the API.
                 {
                     "id": 1,
                     "name": "Test widget 1",
-                    "description": "widget for testing, number 1",
-                    "type":"HTML",
-                    "content":"<h1>Test widget 1, Hello World</h1>"
                     "@controls": {
                         "self": {
                             "href": "/api/widgets/1/"
@@ -604,7 +618,7 @@ Adds a new widget to the collection. The widget representation must be valid aga
 
     + Headers
     
-            Location: /api/widgets/
+            Location: /api/widgets/2/
         
 + Response 415 (application/vnd.mason+json)
 
@@ -668,7 +682,6 @@ Get a list of widgets by the user.
                     {
                         "id": 1,
                         "name": "Test widget 1",
-                        "description": "widget for testing, number 1",
                         "@controls": {
                             "self": {
                                 "href": "/api/widgets/1/"
@@ -699,97 +712,6 @@ Get a list of widgets by the user.
                     }
                 }
             }
-
-## Widgets of Layout [/api/layouts/{layout}/widgets/]
-
-This is an widget collection by given layout using the layout's unique id. 
-
-+ Parameters
-
-    + layout: 1 (string) - layout's unique id (id)
-
-### List widgets by layout [GET]
-
-Get a list of widgets by the leyout.
-
-+ Relation: widgets-of
-+ Request
-
-    + Headers
-    
-            Accept: application/vnd.mason+json
-    
-+ Response 200 (application/vnd.mason+json)
-
-    + Body
-    
-            {
-                "@namespaces": {
-                    "nautto": {
-                        "name": "/nautto/link-relations#"
-                    }
-                }, 
-                "@controls": {
-                    "self": {
-                        "href": "/api/layouts/1/widgets/"
-                    }
-                },
-                "items": [
-                    {
-                        "id": 1,
-                        "name": "Test widget 1",
-                        "description": "widget for testing, number 1",
-                        "@controls": {
-                            "self": {
-                                "href": "/api/widgets/1/"
-                            },
-                            "profile": {
-                                "href": "/profiles/widget/"
-                            }
-                        }
-                    }
-                ]
-            }
-
-+ Response 404 (application/vnd.mason+json)
-
-    The client is trying to retrieve list of widgets for an user that doesn't exist.
-
-    + Body
-    
-            {
-                "resource_url": "/api/users/doesnt-exists/widgets/",
-                "@error": {
-                    "@message": "Unsupported not found",
-                    "@messages": [null]
-                },
-                "@controls": {
-                    "profile": {
-                        "href": "/profiles/error/"
-                    }
-                }
-            }
-            
-### Add widget to layout [POST]
-
-Adds a widget to the layout.
-
-+ Relation: add-widget
-+ Request (application/json)
-
-    + Headers
-    
-            Accept: application/vnd.mason+json
-        
-    + Body
-    
-            {
-                "id":"1"
-            }
-
-+ Response 201 (application/vnd.mason+json)
-
-+ Response 404 (application/vnd.mason+json)
 
 ## Widget [/api/widgets/{widget}/]
 
@@ -823,6 +745,8 @@ Get the widget representation.
               },
               "name": "Test Widget 1",
               "description": "Widget for testing, number 1",
+              "type": "HTML",
+              "content": "<H1>Test widget 1, Hello World</H1>"
               "@controls": {
                 "self": {
                     "href": "/api/widgets/1/"
@@ -1030,7 +954,7 @@ Get a list of all layouts known to the API.
                         "type": "string"
                       }
                     },
-                    "required": ["name", "type", "content"]
+                    "required": ["name"]
                   }
                 }
               },
@@ -1038,19 +962,12 @@ Get a list of all layouts known to the API.
                 {
                     "id": 1,
                     "name": "Test layout 1",
-                    "description": "layout for testing, number 1",
-                    "type":"HTML",
-                    "content":"<h1>Test layout 1, Hello World</h1>"
                     "@controls": {
                         "self": {
                             "href": "/api/layouts/1/"
                         },
                         "profile": {
                             "href": "/profiles/layout/"
-                        },
-                        "nautto:widgets-of": {
-                            "href": "/api/layouts/1/widgets/",
-                            "title": "widgets of a layout",
                         }
                     }
                 }
@@ -1079,7 +996,7 @@ Adds a new layout to the collection. The layout representation must be valid aga
 
     + Headers
     
-            Location: /api/layouts/
+            Location: /api/layouts/2/
         
 + Response 415 (application/vnd.mason+json)
 
@@ -1143,7 +1060,6 @@ Get a list of layouts by the user.
                     {
                         "id": 1,
                         "name": "Test layout 1",
-                        "description": "layout for testing, number 1",
                         "@controls": {
                             "self": {
                                 "href": "/api/layouts/1/"
@@ -1178,102 +1094,6 @@ Get a list of layouts by the user.
                     }
                 }
             }
-
-## Layouts of Set [/api/sets/{set}/layouts/]
-
-This is an layout collection by given set using the set's unique id. 
-
-+ Parameters
-
-    + set: 1 (string) - set's unique id (id)
-
-### List layouts of set [GET]
-
-Get a list of layouts of a set.
-
-+ Relation: layouts-of
-+ Request
-
-    + Headers
-    
-            Accept: application/vnd.mason+json
-    
-+ Response 200 (application/vnd.mason+json)
-
-    + Body
-    
-            {
-                "@namespaces": {
-                    "nautto": {
-                        "name": "/nautto/link-relations#"
-                    }
-                }, 
-                "@controls": {
-                    "self": {
-                        "href": "/api/sets/1/layouts/"
-                    },                  
-                    "author": {
-                        "href": "/api/sets/1/"
-                    },
-                },
-                "items": [
-                    {
-                        "id": 1,
-                        "name": "Test layout 1",
-                        "description": "layout for testing, number 1",
-                        "@controls": {
-                            "self": {
-                                "href": "/api/layouts/1/"
-                            },
-                            "profile": {
-                                "href": "/profiles/layout/"
-                            },
-                            "nautto:widgets-of": {
-                                "href": "/api/layouts/1/widgets/",
-                                "title": "widgets of a layout",
-                            }
-                        }
-                    }
-                ]
-            }
-
-+ Response 404 (application/vnd.mason+json)
-
-    The client is trying to retrieve list of layouts for an user that doesn't exist.
-
-    + Body
-    
-            {
-                "resource_url": "/api/users/doesnt-exists/layouts/",
-                "@error": {
-                    "@message": "Unsupported not found",
-                    "@messages": [null]
-                },
-                "@controls": {
-                    "profile": {
-                        "href": "/profiles/error/"
-                    }
-                }
-            }
-            
-### Add layout to set [POST]
-
-Adds a layout to the set.
-
-+ Relation: add-layout
-+ Request (application/json)
-
-    + Headers
-    
-            Accept: application/vnd.mason+json
-        
-    + Body
-    
-            {
-                "id":"1"
-            }
-
-+ Response 201 (application/vnd.mason+json)
 
 
 ## Layout [/api/layouts/{layout}/]
@@ -1308,6 +1128,20 @@ Get the layout representation.
               },
               "name": "Test Layout 1",
               "description": "Layout for testing, number 1",
+              "items":[
+                    {
+                        "id": 1,
+                        "name": "Test widget 1",
+                        "@controls": {
+                            "self": {
+                                "href": "/api/widgets/1/"
+                            },
+                            "profile": {
+                                "href": "/profiles/widget/"
+                            }
+                        }
+                    }
+                ]
               "@controls": {
                 "self": {
                     "href": "/api/layouts/1/"
@@ -1346,6 +1180,11 @@ Get the layout representation.
                 "nautto:widgets-of": {
                     "href": "/api/layouts/1/widgets/",
                     "title": "widgets of a layout",
+                },
+                "nautto:add-widget": {
+                    "href": "/api/layouts/1/",
+                    "title": "Add widget to layout",
+                    "method": "PUT"
                 }
               }
             }
@@ -1384,7 +1223,15 @@ Replace the layout's representation with a new one. Missing optinal fields will 
     
             {
                 "name":"Test Layout 1",
-                "description":"Layout for testing, number 1"
+                "description":"Layout for testing, number 1",
+                "items": [
+                    {
+                        "id": 1
+                    },
+                    {
+                        "id": 2
+                    }
+                ]
             }
         
 + Response 204
@@ -1515,17 +1362,12 @@ Get a list of all sets known to the API.
                 {
                     "id": 1,
                     "name": "Test set 1",
-                    "description": "set for testing, number 1",
                     "@controls": {
                         "self": {
                             "href": "/api/sets/1/"
                         },
                         "profile": {
                             "href": "/profiles/set/"
-                        },
-                        "nautto:layouts-of": {
-                            "href": "/api/sets/1/layouts/",
-                            "title": "Layouts of a set",
                         }
                     }
                 }
@@ -1554,7 +1396,7 @@ Adds a new set to the collection. The set representation must be valid against t
 
     + Headers
     
-            Location: /api/sets/
+            Location: /api/sets/2/
         
 + Response 415 (application/vnd.mason+json)
 
@@ -1616,17 +1458,12 @@ Get a list of sets by the user.
                     {
                         "id": 1,
                         "name": "Test set 1",
-                        "description": "set for testing, number 1",
                         "@controls": {
                             "self": {
                                 "href": "/api/sets/1/"
                             },
                             "profile": {
                                 "href": "/profiles/set/"
-                            },
-                            "nautto:layouts-of": {
-                                "href": "/api/sets/1/layouts/",
-                                "title": "Layouts of a set",
                             }
                         }
                     }
@@ -1685,6 +1522,20 @@ Get the set representation.
               },
               "name": "Test Set 1",
               "description": "Set for testing, number 1",
+                "items":[
+                    {
+                        "id": 1,
+                        "name": "Test widget 1",
+                        "@controls": {
+                            "self": {
+                                "href": "/api/widgets/1/"
+                            },
+                            "profile": {
+                                "href": "/profiles/widget/"
+                            }
+                        }
+                    }
+                ]
               "@controls": {
                 "self": {
                     "href": "/api/sets/1/"
@@ -1719,10 +1570,6 @@ Get the set representation.
                   "href": "/api/sets/1/",
                   "title": "Delete this set",
                   "method": "DELETE"
-                },
-                "nautto:layouts-of": {
-                    "href": "/api/sets/1/layouts/",
-                    "title": "Layouts of a set",
                 }
               }
             }
@@ -1762,8 +1609,14 @@ Replace the set's representation with a new one. Missing optinal fields will be 
             {
                 "name":"Test Set 1",
                 "description":"Set for testing, number 1",
-                "type":"HTML",
-                "content":"<h1>Test set 1, Hello World</h1>"
+                "items": [
+                    {
+                        "id": 1
+                    },
+                    {
+                        "id": 2
+                    }
+                ]
             }
         
 + Response 204
