@@ -1,13 +1,13 @@
 from . import db
 
 set_layouts = db.Table(
-    "sets",
+    "set_layouts",
     db.Column("set_id", db.Integer, db.ForeignKey("set.id"), primary_key=True),
     db.Column("layout_id", db.Integer, db.ForeignKey("layout.id"), primary_key=True)
 )
 
 layout_widgets = db.Table(
-    "layouts",
+    "layout_widgets",
     db.Column("layout_id", db.Integer, db.ForeignKey("layout.id"), primary_key=True),
     db.Column("widget_id", db.Integer, db.ForeignKey("widget.id"), primary_key=True)
 )
@@ -15,11 +15,11 @@ layout_widgets = db.Table(
 class User(db.Model):
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True)
     name = db.Column(db.String(128), nullable=False)
-    description = db.Column(db.String(256), nullable=True)
+    description = db.Column(db.String(1024), nullable=True)
 
-    widgets = db.relationship("Widget", back_populates="user")
-    layouts = db.relationship("Layout", back_populates="user")
-    sets = db.relationship("Set", back_populates="user")
+    widgets = db.relationship("Widget", back_populates="user", cascade="all, delete-orphan")
+    layouts = db.relationship("Layout", back_populates="user", cascade="all, delete-orphan")
+    sets = db.relationship("Set", back_populates="user", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f'{self.name} <{self.id}>'
@@ -27,7 +27,7 @@ class User(db.Model):
 class Set(db.Model):
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True)
     name = db.Column(db.String(128), nullable=False)
-    description = db.Column(db.String(256), nullable=True)
+    description = db.Column(db.String(1024), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id", ondelete="CASCADE"))
 
     user = db.relationship("User", back_populates="sets", uselist=False)
@@ -39,7 +39,7 @@ class Set(db.Model):
 class Layout(db.Model):
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
-    description = db.Column(db.String(256), nullable=True)
+    description = db.Column(db.String(1024), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id", ondelete="CASCADE"))
 
     user = db.relationship("User", back_populates="layouts", uselist=False)
@@ -52,9 +52,9 @@ class Layout(db.Model):
 class Widget(db.Model):
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True)
     name = db.Column(db.String(128), nullable=False)
-    description = db.Column(db.String(256), nullable=True)
+    description = db.Column(db.String(1024), nullable=True)
     type = db.Column(db.String(64), nullable=False)
-    content = db.Column(db.String(1024), nullable=False)
+    content = db.Column(db.Text(), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id", ondelete="CASCADE"))
 
     user = db.relationship("User", back_populates="widgets", uselist=False)

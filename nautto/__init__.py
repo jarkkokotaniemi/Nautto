@@ -1,6 +1,8 @@
 import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.engine import Engine
+from sqlalchemy import event
 
 db = SQLAlchemy()
 
@@ -25,6 +27,13 @@ def create_app(test_config=None):
         pass
     
     db.init_app(app)
+
+    # Force foreing key usage
+    @event.listens_for(Engine, "connect")
+    def set_sqlite_pragma(dbapi_connection, connection_record):
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.close()
 
     from . import models
     app.cli.add_command(models.db_init_cmd)
