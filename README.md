@@ -15,7 +15,6 @@ To run the application you should run the following commands (on PowerShell):
 git clone https://github.com/jarkkokotaniemi/Nautto
 cd ./nautto
 pip3 install -r requirements.txt
-pip3 install .
 $env:FLASK_APP="nautto"
 ```
 
