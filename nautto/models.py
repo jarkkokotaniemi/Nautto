@@ -24,6 +24,26 @@ class User(db.Model):
     def __repr__(self):
         return f'{self.name} <{self.id}>'
 
+    @staticmethod
+    def get_schema():
+        schema = {
+            "type": "object",
+            "required": ["name"]
+        }
+        props = schema["properties"] = {}
+        props["id"] = {
+            "type": "string"
+        }
+        props["name"] = {
+            "description": "User's name",
+            "type": "string"
+        }
+        props["description"] = {
+            "description": "Description of the user",
+            "type": "string"
+        }
+        return schema
+
 class Set(db.Model):
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True)
     name = db.Column(db.String(128), nullable=False)
@@ -35,6 +55,26 @@ class Set(db.Model):
 
     def __repr__(self):
         return f'{self.name} <{self.id}>'
+    
+    @staticmethod
+    def get_schema():
+        schema = {
+            "type": "object",
+            "required": ["name"]
+        }
+        props = schema["properties"] = {}
+        props["id"] = {
+            "type": "string"
+        }
+        props["name"] = {
+            "description": "Set's name",
+            "type": "string"
+        }
+        props["description"] = {
+            "description": "Description of the set",
+            "type": "string"
+        }
+        return schema
 
 class Layout(db.Model):
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True)
@@ -48,6 +88,26 @@ class Layout(db.Model):
 
     def __repr__(self):
         return f'{self.name} <{self.id}>'
+    
+    @staticmethod
+    def get_schema():
+        schema = {
+            "type": "object",
+            "required": ["name"]
+        }
+        props = schema["properties"] = {}
+        props["id"] = {
+            "type": "string"
+        }
+        props["name"] = {
+            "description": "Layout's name",
+            "type": "string"
+        }
+        props["description"] = {
+            "description": "Description of the layout",
+            "type": "string"
+        }
+        return schema
 
 class Widget(db.Model):
     id = db.Column(db.Integer, nullable=False, unique=True, primary_key=True)
@@ -62,6 +122,26 @@ class Widget(db.Model):
 
     def __repr__(self):
         return f'{self.name} <{self.id}>'
+    
+    @staticmethod
+    def get_schema():
+        schema = {
+            "type": "object",
+            "required": ["name", "type", "content"]
+        }
+        props = schema["properties"] = {}
+        props["id"] = {
+            "type": "string"
+        }
+        props["name"] = {
+            "description": "Widget's name",
+            "type": "string"
+        }
+        props["description"] = {
+            "description": "Description of the widget",
+            "type": "string"
+        }
+        return schema
 
 
 import click
