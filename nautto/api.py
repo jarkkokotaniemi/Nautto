@@ -1,5 +1,6 @@
 
 from nautto.resources.user import UserCollection, UserItem
+from nautto.resources.widget import WidgetsByUserCollection, WidgetCollection, WidgetItem
 from flask import Blueprint
 from flask_restful import Api
 
@@ -8,3 +9,8 @@ api = Api(api_bp)
 
 api.add_resource(UserCollection, "/users/")
 api.add_resource(UserItem, "/users/<user>/")
+
+api.add_resource(WidgetsByUserCollection, "/users/<user>/widgets/")
+
+api.add_resource(WidgetCollection, "/widgets/")
+api.add_resource(WidgetItem, "/widgets/<widget>/")

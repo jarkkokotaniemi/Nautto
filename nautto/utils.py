@@ -3,7 +3,8 @@ import json
 from flask import Response, request, url_for
 
 from nautto.constants import *
-from nautto.models import *
+
+import nautto
 
 
 class MasonBuilder(dict):
@@ -71,50 +72,44 @@ class MasonBuilder(dict):
         self["@controls"][ctrl_name]["href"] = href
 
 
+def _getModel(resource):
+    return vars(nautto.models)[resource.capitalize()]
+
+
 class NauttoBuilder(MasonBuilder):
 
-    def add_control_add_user(self):
+    def add_control_add_resource(self, resource, url):
+        Model = _getModel(resource)
         self.add_control(
-            "nautto:add-user",
-            url_for("api.usercollection"),
+            f'nautto:add-{resource}',
+            # url_for(f'api.{collection_name}'),
+            url,
             method="POST",
             encoding="json",
-            title="Add a new user",
-            schema=User.get_schema()
+            title=f'Add a new {resource}',
+            schema=Model.get_schema()
         )
 
-    def add_control_modify_user(self, user):
+    def add_control_modify_resource(self, resource, url):
+        Model = _getModel(resource)
         self.add_control(
             "edit",
-            url_for("api.useritem", user=user),
+            #url_for(f'api.{item_name}', **{resource: identifier}),
+            url,
             method="PUT",
             encoding="json",
-            title="Edit this user",
-            schema=User.get_schema()
-        )
-    
-    def add_control_delete_user(self, user):
-        self.add_control(
-            "nautto:delete",
-            url_for("api.useritem", user=user),
-            method="DELETE",
-            title="Delete this user"
+            title=f'Edit this {resource}',
+            schema=Model.get_schema()
         )
 
-    @staticmethod
-    def _paginator_schema():
-        schema = {
-            "type": "object",
-            "properties": {},
-            "required": []
-        }
-        props = schema["properties"]
-        props["index"] = {
-            "description": "Starting index for pagination",
-            "type": "integer",
-            "default": "0"
-        }
-        return schema
+    def add_control_delete_resource(self, resource, url):
+        self.add_control(
+            "nautto:delete",
+            #url_for(f'api.{item_name}', **{resource: identifier}),
+            url,
+            method="DELETE",
+            title=f'Delete this {resource}'
+        )
 
 
 def create_error_response(status_code, title, message=None):

@@ -17,12 +17,11 @@ class UserCollection(Resource):
         body = NauttoBuilder()
         body.add_namespace("nautto", LINK_RELATIONS_URL)
         body.add_control("self", url_for("api.usercollection"))
-        body.add_control_add_user()
+        body.add_control_add_resource('user', url_for('api.usercollection'))
         body["items"] = []
         for db_user in User.query.all():
             item = NauttoBuilder(id=db_user.id, name=db_user.name)
-            item.add_control("self", url_for(
-                "api.useritem", user=db_user.id))
+            item.add_control("self", url_for("api.useritem", user=db_user.id))
             item.add_control("profile", USER_PROFILE)
             body["items"].append(item)
 
@@ -74,21 +73,22 @@ class UserItem(Resource):
                 404, "Not found",
                 f'No user was found with the id {user}'
             )
-
+        
         body = NauttoBuilder(
             id=db_user.id,
             name=db_user.name,
             description=db_user.description,
         )
+        url_for_item = url_for('api.useritem', user=user)
         body.add_namespace("nautto", LINK_RELATIONS_URL)
-        body.add_control("self", url_for("api.useritem", user=user))
+        body.add_control("self", url_for_item)
         body.add_control("profile", USER_PROFILE)
         body.add_control("collection", url_for("api.usercollection"))
-        #body.add_control("nautto:widgets-by", url_for("api.widgetcollection"))
+        body.add_control("nautto:widgets-by", url_for("api.widgetcollection"))
         #body.add_control("nautto:layouts-by", url_for("api.layoutcollection"))
         #body.add_control("nautto:sets-by", url_for("api.setcollection"))
-        body.add_control_delete_user(user)
-        body.add_control_modify_user(user)
+        body.add_control_delete_resource('user', url_for_item)
+        body.add_control_modify_resource('user', url_for_item)
 
         return Response(json.dumps(body), 200, mimetype=MASON)
 
