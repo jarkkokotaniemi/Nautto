@@ -141,6 +141,14 @@ class Widget(db.Model):
             "description": "Description of the widget",
             "type": "string"
         }
+        props["type"] = {
+            "description": "Type of the widget",
+            "type": "string"
+        }
+        props["content"] = {
+            "description": "Content of the widget content",
+            "type": "string"
+        }
         return schema
 
 

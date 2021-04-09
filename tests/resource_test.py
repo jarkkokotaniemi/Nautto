@@ -50,7 +50,7 @@ def _get_widget(number=1):
         name=f'test-widget-{number}',
         description=f'test-widget-{number}-desc',
         type="HTML",
-        content=f'<p> test <p>'
+        content=f'<h1> Hello from widget id {number}'
     )
 
 
@@ -96,6 +96,41 @@ def _get_user_json(number=1):
     return {"name": f'test-user-{number}', "description": f'test-user-{number}-desc'}
 
 
+def _get_widget_json(number=1):
+    """
+    Creates a valid widget JSON object to be used for PUT and POST tests.
+    """
+
+    return {
+        "name": f'test-widget-{number}',
+        "description": f'test-widget-{number}-desc',
+        "type": "HTML",
+        "content": f'<h1> Hello from widget id {number}'
+    }
+
+
+def _get_layout_json(number=1):
+    """
+    Creates a valid layout JSON object to be used for PUT and POST tests.
+    """
+
+    return {
+        "name": f'test-layout-{number}',
+        "description": f'test-layout-{number}-desc'
+    }
+
+
+def _get_set_json(number=1):
+    """
+    Creates a valid set JSON object to be used for PUT and POST tests.
+    """
+
+    return {
+        "name": f'test-layout-{number}',
+        "description": f'test-layout-{number}-desc'
+    }
+
+
 def _check_namespace(client, response):
     """
     Checks that the "nautto" namespace is found from the response body, and
@@ -132,7 +167,7 @@ def _check_control_delete_method(ctrl, client, obj):
     assert resp.status_code == 204
 
 
-def _check_control_put_method(ctrl, client, obj):
+def _check_control_put_method(ctrl, client, obj, body):
     """
     Checks a PUT type control from a JSON object be it root document or an item
     in a collection. In addition to checking the "href" attribute, also checks
@@ -149,14 +184,13 @@ def _check_control_put_method(ctrl, client, obj):
     schema = ctrl_obj["schema"]
     assert method == "put"
     assert encoding == "json"
-    body = _get_user_json()
     body["name"] = obj["name"]
     validate(body, schema)
     resp = client.put(href, json=body)
     assert resp.status_code == 204
 
 
-def _check_control_post_method(ctrl, client, obj):
+def _check_control_post_method(ctrl, client, obj, body):
     """
     Checks a POST type control from a JSON object be it root document or an item
     in a collection. In addition to checking the "href" attribute, also checks
@@ -173,7 +207,6 @@ def _check_control_post_method(ctrl, client, obj):
     schema = ctrl_obj["schema"]
     assert method == "post"
     assert encoding == "json"
-    body = _get_user_json()
     validate(body, schema)
     resp = client.post(href, json=body)
     assert resp.status_code == 201
@@ -188,7 +221,7 @@ class TestUserCollection(object):
         assert resp.status_code == 200
         body = json.loads(resp.data)
         _check_namespace(client, body)
-        _check_control_post_method("nautto:add-user", client, body)
+        _check_control_post_method("nautto:add-user", client, body, _get_user_json())
         assert len(body["items"]) == 2
         for item in body["items"]:
             _check_control_get_method("self", client, item)
@@ -213,7 +246,7 @@ class TestUserCollection(object):
         resp = client.post(self.RESOURCE_URL, json=valid)
         assert resp.status_code == 409
         valid.pop("id")
-        
+
         # remove name field for 400
         valid.pop("name")
         resp = client.post(self.RESOURCE_URL, json=valid)
@@ -233,13 +266,331 @@ class TestUserItem(object):
         _check_namespace(client, body)
         _check_control_get_method("profile", client, body)
         _check_control_get_method("collection", client, body)
-        _check_control_put_method("edit", client, body)
+        _check_control_put_method("edit", client, body, _get_user_json())
         _check_control_delete_method("nautto:delete", client, body)
         resp = client.get(self.INVALID_URL)
         assert resp.status_code == 404
 
     def test_put(self, client):
         valid = _get_user_json()
+
+        # test with wrong content type
+        resp = client.put(self.RESOURCE_URL, data=json.dumps(valid))
+        assert resp.status_code == 415
+
+        resp = client.put(self.INVALID_URL, json=valid)
+        assert resp.status_code == 404
+
+        # test with another user's id
+        valid["id"] = "2"
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 409
+
+        # test with valid (only change desc)
+        valid["id"] = "1"
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 204
+
+    def test_delete(self, client):
+        resp = client.delete(self.RESOURCE_URL)
+        assert resp.status_code == 204
+        resp = client.delete(self.RESOURCE_URL)
+        assert resp.status_code == 404
+        resp = client.delete(self.INVALID_URL)
+        assert resp.status_code == 404
+
+
+class TestWidgetsByUserCollection(object):
+
+    USER_ID = 1
+    RESOURCE_URL = f'/api/users/{USER_ID}/widgets/'
+
+    def test_get(self, client):
+        resp = client.get(self.RESOURCE_URL)
+        assert resp.status_code == 200
+        body = json.loads(resp.data)
+        _check_namespace(client, body)
+        _check_control_post_method("nautto:add-widget", client, body, _get_widget_json())
+        assert len(body["items"]) == 1
+        for item in body["items"]:
+            _check_control_get_method("self", client, item)
+            _check_control_get_method("profile", client, item)
+
+    def test_post(self, client):
+        valid = _get_widget_json(3)
+
+        # test with wrong content type
+        resp = client.post(self.RESOURCE_URL, data=json.dumps(valid))
+        assert resp.status_code == 415
+
+        # test with valid and see that it exists afterward
+        resp = client.post(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 201
+        assert resp.headers["Location"].endswith(f'/api/widgets/2/')
+        resp = client.get(resp.headers["Location"])
+        assert resp.status_code == 200
+
+        # send same data again for 409
+        valid["id"] = "2"
+        resp = client.post(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 409
+        valid.pop("id")
+
+        # remove name field for 400
+        valid.pop("name")
+        resp = client.post(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 400
+
+
+class TestWidgetCollection(object):
+
+    RESOURCE_URL = "/api/widgets/"
+
+    def test_get(self, client):
+        resp = client.get(self.RESOURCE_URL)
+        assert resp.status_code == 200
+        body = json.loads(resp.data)
+        _check_namespace(client, body)
+        assert len(body["items"]) == 1
+        for item in body["items"]:
+            _check_control_get_method("self", client, item)
+            _check_control_get_method("profile", client, item)
+
+
+class TestWidgetItem(object):
+
+    RESOURCE_URL = "/api/widgets/1/"
+    INVALID_URL = "/api/widgets/non-widget-x/"
+
+    def test_get(self, client):
+
+        resp = client.get(self.RESOURCE_URL)
+        assert resp.status_code == 200
+        body = json.loads(resp.data)
+        _check_namespace(client, body)
+        _check_control_get_method("profile", client, body)
+        _check_control_get_method("collection", client, body)
+        _check_control_put_method("edit", client, body, _get_widget_json())
+        _check_control_delete_method("nautto:delete", client, body)
+        resp = client.get(self.INVALID_URL)
+        assert resp.status_code == 404
+
+    def test_put(self, client):
+        valid = _get_widget_json()
+
+        # test with wrong content type
+        resp = client.put(self.RESOURCE_URL, data=json.dumps(valid))
+        assert resp.status_code == 415
+
+        resp = client.put(self.INVALID_URL, json=valid)
+        assert resp.status_code == 404
+
+        # test with another user's id
+        valid["id"] = "2"
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 409
+
+        # test with valid (only change desc)
+        valid["id"] = "1"
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 204
+
+    def test_delete(self, client):
+        resp = client.delete(self.RESOURCE_URL)
+        assert resp.status_code == 204
+        resp = client.delete(self.RESOURCE_URL)
+        assert resp.status_code == 404
+        resp = client.delete(self.INVALID_URL)
+        assert resp.status_code == 404
+
+
+class TestLayoutsByUserCollection(object):
+
+    USER_ID = 1
+    RESOURCE_URL = f'/api/users/{USER_ID}/layouts/'
+
+    def test_get(self, client):
+        resp = client.get(self.RESOURCE_URL)
+        assert resp.status_code == 200
+        body = json.loads(resp.data)
+        _check_namespace(client, body)
+        _check_control_post_method("nautto:add-layout", client, body, _get_layout_json())
+        assert len(body["items"]) == 1
+        for item in body["items"]:
+            _check_control_get_method("self", client, item)
+            _check_control_get_method("profile", client, item)
+
+    def test_post(self, client):
+        valid = _get_layout_json(3)
+
+        # test with wrong content type
+        resp = client.post(self.RESOURCE_URL, data=json.dumps(valid))
+        assert resp.status_code == 415
+
+        # test with valid and see that it exists afterward
+        resp = client.post(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 201
+        assert resp.headers["Location"].endswith(f'/api/layouts/2/')
+        resp = client.get(resp.headers["Location"])
+        assert resp.status_code == 200
+
+        # send same data again for 409
+        valid["id"] = "2"
+        resp = client.post(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 409
+        valid.pop("id")
+
+        # remove name field for 400
+        valid.pop("name")
+        resp = client.post(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 400
+
+
+class TestLayoutCollection(object):
+
+    RESOURCE_URL = "/api/layouts/"
+
+    def test_get(self, client):
+        resp = client.get(self.RESOURCE_URL)
+        assert resp.status_code == 200
+        body = json.loads(resp.data)
+        _check_namespace(client, body)
+        assert len(body["items"]) == 1
+        for item in body["items"]:
+            _check_control_get_method("self", client, item)
+            _check_control_get_method("profile", client, item)
+
+
+class TestLayoutItem(object):
+
+    RESOURCE_URL = "/api/layouts/1/"
+    INVALID_URL = "/api/layouts/non-layout-x/"
+
+    def test_get(self, client):
+
+        resp = client.get(self.RESOURCE_URL)
+        assert resp.status_code == 200
+        body = json.loads(resp.data)
+        _check_namespace(client, body)
+        _check_control_get_method("profile", client, body)
+        _check_control_get_method("collection", client, body)
+        _check_control_put_method("edit", client, body, _get_layout_json())
+        _check_control_delete_method("nautto:delete", client, body)
+        resp = client.get(self.INVALID_URL)
+        assert resp.status_code == 404
+        for item in body["items"]:
+            _check_control_get_method("self", client, item)
+            _check_control_get_method("profile", client, item)
+
+    def test_put(self, client):
+        valid = _get_layout_json()
+
+        # test with wrong content type
+        resp = client.put(self.RESOURCE_URL, data=json.dumps(valid))
+        assert resp.status_code == 415
+
+        resp = client.put(self.INVALID_URL, json=valid)
+        assert resp.status_code == 404
+
+        # test with another user's id
+        valid["id"] = "2"
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 409
+
+        # test with valid (only change desc)
+        valid["id"] = "1"
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 204
+
+    def test_delete(self, client):
+        resp = client.delete(self.RESOURCE_URL)
+        assert resp.status_code == 204
+        resp = client.delete(self.RESOURCE_URL)
+        assert resp.status_code == 404
+        resp = client.delete(self.INVALID_URL)
+        assert resp.status_code == 404
+
+
+class TestSetsByUserCollection(object):
+
+    USER_ID = 1
+    RESOURCE_URL = f'/api/users/{USER_ID}/sets/'
+
+    def test_get(self, client):
+        resp = client.get(self.RESOURCE_URL)
+        assert resp.status_code == 200
+        body = json.loads(resp.data)
+        _check_namespace(client, body)
+        _check_control_post_method("nautto:add-set", client, body, _get_set_json())
+        assert len(body["items"]) == 1
+        for item in body["items"]:
+            _check_control_get_method("self", client, item)
+            _check_control_get_method("profile", client, item)
+
+    def test_post(self, client):
+        valid = _get_set_json(3)
+
+        # test with wrong content type
+        resp = client.post(self.RESOURCE_URL, data=json.dumps(valid))
+        assert resp.status_code == 415
+
+        # test with valid and see that it exists afterward
+        resp = client.post(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 201
+        assert resp.headers["Location"].endswith(f'/api/sets/2/')
+        resp = client.get(resp.headers["Location"])
+        assert resp.status_code == 200
+
+        # send same data again for 409
+        valid["id"] = "2"
+        resp = client.post(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 409
+        valid.pop("id")
+
+        # remove name field for 400
+        valid.pop("name")
+        resp = client.post(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 400
+
+
+class TestSetCollection(object):
+
+    RESOURCE_URL = "/api/sets/"
+
+    def test_get(self, client):
+        resp = client.get(self.RESOURCE_URL)
+        assert resp.status_code == 200
+        body = json.loads(resp.data)
+        _check_namespace(client, body)
+        assert len(body["items"]) == 1
+        for item in body["items"]:
+            _check_control_get_method("self", client, item)
+            _check_control_get_method("profile", client, item)
+
+
+class TestSetItem(object):
+
+    RESOURCE_URL = "/api/sets/1/"
+    INVALID_URL = "/api/sets/non-set-x/"
+
+    def test_get(self, client):
+
+        resp = client.get(self.RESOURCE_URL)
+        assert resp.status_code == 200
+        body = json.loads(resp.data)
+        _check_namespace(client, body)
+        _check_control_get_method("profile", client, body)
+        _check_control_get_method("collection", client, body)
+        _check_control_put_method("edit", client, body, _get_set_json())
+        _check_control_delete_method("nautto:delete", client, body)
+        resp = client.get(self.INVALID_URL)
+        assert resp.status_code == 404
+        for item in body["items"]:
+            _check_control_get_method("self", client, item)
+            _check_control_get_method("profile", client, item)
+
+    def test_put(self, client):
+        valid = _get_set_json()
 
         # test with wrong content type
         resp = client.put(self.RESOURCE_URL, data=json.dumps(valid))
