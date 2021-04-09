@@ -109,6 +109,17 @@ def _get_widget_json(number=1):
     }
 
 
+def _get_layout_json(number=1):
+    """
+    Creates a valid layout JSON object to be used for PUT and POST tests.
+    """
+
+    return {
+        "name": f'test-layout-{number}',
+        "description": f'test-layout-{number}-desc'
+    }
+
+
 def _check_namespace(client, response):
     """
     Checks that the "nautto" namespace is found from the response body, and
@@ -355,6 +366,113 @@ class TestWidgetItem(object):
 
     def test_put(self, client):
         valid = _get_widget_json()
+
+        # test with wrong content type
+        resp = client.put(self.RESOURCE_URL, data=json.dumps(valid))
+        assert resp.status_code == 415
+
+        resp = client.put(self.INVALID_URL, json=valid)
+        assert resp.status_code == 404
+
+        # test with another user's id
+        valid["id"] = "2"
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 409
+
+        # test with valid (only change desc)
+        valid["id"] = "1"
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 204
+
+    def test_delete(self, client):
+        resp = client.delete(self.RESOURCE_URL)
+        assert resp.status_code == 204
+        resp = client.delete(self.RESOURCE_URL)
+        assert resp.status_code == 404
+        resp = client.delete(self.INVALID_URL)
+        assert resp.status_code == 404
+
+
+class TestLayoutsByUserCollection(object):
+
+    USER_ID = 1
+    RESOURCE_URL = f'/api/users/{USER_ID}/layouts/'
+
+    def test_get(self, client):
+        resp = client.get(self.RESOURCE_URL)
+        assert resp.status_code == 200
+        body = json.loads(resp.data)
+        _check_namespace(client, body)
+        _check_control_post_method("nautto:add-layout", client, body, _get_layout_json())
+        assert len(body["items"]) == 1
+        for item in body["items"]:
+            _check_control_get_method("self", client, item)
+            _check_control_get_method("profile", client, item)
+
+    def test_post(self, client):
+        valid = _get_layout_json(3)
+
+        # test with wrong content type
+        resp = client.post(self.RESOURCE_URL, data=json.dumps(valid))
+        assert resp.status_code == 415
+
+        # test with valid and see that it exists afterward
+        resp = client.post(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 201
+        assert resp.headers["Location"].endswith(f'/api/layouts/2/')
+        resp = client.get(resp.headers["Location"])
+        assert resp.status_code == 200
+
+        # send same data again for 409
+        valid["id"] = "2"
+        resp = client.post(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 409
+        valid.pop("id")
+
+        # remove name field for 400
+        valid.pop("name")
+        resp = client.post(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 400
+
+
+class TestLayoutCollection(object):
+
+    RESOURCE_URL = "/api/layouts/"
+
+    def test_get(self, client):
+        resp = client.get(self.RESOURCE_URL)
+        assert resp.status_code == 200
+        body = json.loads(resp.data)
+        _check_namespace(client, body)
+        assert len(body["items"]) == 1
+        for item in body["items"]:
+            _check_control_get_method("self", client, item)
+            _check_control_get_method("profile", client, item)
+
+
+class TestLayoutItem(object):
+
+    RESOURCE_URL = "/api/layouts/1/"
+    INVALID_URL = "/api/layouts/non-layout-x/"
+
+    def test_get(self, client):
+
+        resp = client.get(self.RESOURCE_URL)
+        assert resp.status_code == 200
+        body = json.loads(resp.data)
+        _check_namespace(client, body)
+        _check_control_get_method("profile", client, body)
+        _check_control_get_method("collection", client, body)
+        _check_control_put_method("edit", client, body, _get_layout_json())
+        _check_control_delete_method("nautto:delete", client, body)
+        resp = client.get(self.INVALID_URL)
+        assert resp.status_code == 404
+        for item in body["items"]:
+            _check_control_get_method("self", client, item)
+            _check_control_get_method("profile", client, item)
+
+    def test_put(self, client):
+        valid = _get_layout_json()
 
         # test with wrong content type
         resp = client.put(self.RESOURCE_URL, data=json.dumps(valid))
