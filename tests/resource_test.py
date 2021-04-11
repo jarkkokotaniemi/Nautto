@@ -502,6 +502,16 @@ class TestLayoutItem(object):
         resp = client.put(self.RESOURCE_URL, json=valid)
         assert resp.status_code == 204
 
+        # test adding the same widgets to layout
+        valid["items"] = [{"id":"1"}]
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 204
+
+        # test adding nonexistent widget to layout
+        valid["items"] = [{"id":"100"}]
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 404
+
     def test_delete(self, client):
         resp = client.delete(self.RESOURCE_URL)
         assert resp.status_code == 204
@@ -608,6 +618,16 @@ class TestSetItem(object):
         valid["id"] = "1"
         resp = client.put(self.RESOURCE_URL, json=valid)
         assert resp.status_code == 204
+
+        # test adding the same layout to set
+        valid["items"] = [{"id":"1"}]
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 204
+
+        # test adding nonexistent layout to set
+        valid["items"] = [{"id":"100"}]
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 404
 
     def test_delete(self, client):
         resp = client.delete(self.RESOURCE_URL)

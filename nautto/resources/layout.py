@@ -5,7 +5,7 @@ from flask import Response, request, url_for
 from flask_restful import Resource
 from sqlalchemy.exc import IntegrityError
 
-from nautto.models import Layout, User
+from nautto.models import Layout, User, Widget
 from nautto import db
 from nautto.utils import NauttoBuilder, create_error_response
 from nautto.constants import *
@@ -112,7 +112,7 @@ class LayoutItem(Resource):
         body["items"] = []
         for widget in db_layout.widgets:
             item = NauttoBuilder(id=widget.id, name=widget.name)
-            item.add_control("self", url_for("api.widgetitem", widget=widget.id))
+            item.add_control("self", url_for("api.widgetoflayout", widget=widget.id, layout=layout))
             item.add_control("profile", WIDGET_PROFILE)
             body["items"].append(item)
 
@@ -142,6 +142,17 @@ class LayoutItem(Resource):
 
         db_layout.name = request.json["name"]
         db_layout.description = request.json["description"]
+
+        if ('items' in request.json):
+            for item in request.json['items']:
+                widget = Widget.query.filter_by(id=item['id']).first()
+                if widget:
+                    db_layout.widgets.append(widget)
+                else:
+                    return create_error_response(
+                        404, "Not found",
+                        f'No widget was found with id {item["id"]}'
+                    )
 
         try:
             db.session.commit()

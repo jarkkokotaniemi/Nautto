@@ -166,3 +166,33 @@ class WidgetItem(Resource):
         db.session.commit()
 
         return Response(status=204)
+
+
+class WidgetOfLayout(Resource):
+
+    def get(self, layout, widget):
+        db_widget = Widget.query.filter_by(id=widget).first()
+        if db_widget is None:
+            return create_error_response(
+                404, "Not found",
+                f'No widget was found with the id {widget}'
+            )
+
+        body = NauttoBuilder(
+            id=db_widget.id,
+            name=db_widget.name,
+            description=db_widget.description,
+            type=db_widget.type,
+            content=db_widget.content,
+        )
+        url_for_item = url_for('api.widgetitem', widget=widget)
+        body.add_namespace("nautto", LINK_RELATIONS_URL)
+        body.add_control("self", url_for_item)
+        body.add_control("profile", WIDGET_PROFILE)
+        body.add_control("collection", url_for("api.widgetcollection"))
+        body.add_control("author", url_for("api.useritem", user=db_widget.user_id))
+        body.add_control_delete_resource('widget', url_for_item)
+        body.add_control_modify_resource('widget', url_for_item)
+        body.add_control('up', url_for("api.layoutitem", layout=layout))
+
+        return Response(json.dumps(body), 200, mimetype=MASON)

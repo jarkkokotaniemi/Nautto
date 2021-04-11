@@ -5,7 +5,7 @@ from flask import Response, request, url_for
 from flask_restful import Resource
 from sqlalchemy.exc import IntegrityError
 
-from nautto.models import Set, User
+from nautto.models import Set, User, Layout
 from nautto import db
 from nautto.utils import NauttoBuilder, create_error_response
 from nautto.constants import *
@@ -142,6 +142,18 @@ class SetItem(Resource):
 
         db_set.name = request.json["name"]
         db_set.description = request.json["description"]
+
+        if ('items' in request.json):
+            for item in request.json['items']:
+                layout = Layout.query.filter_by(id=item['id']).first()
+                if layout:
+                    db_set.layouts.append(layout)
+                else:
+                    return create_error_response(
+                        404, "Not found",
+                        f'No layout was found with id {item["id"]}'
+                    )
+
 
         try:
             db.session.commit()
