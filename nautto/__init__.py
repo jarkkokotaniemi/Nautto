@@ -57,8 +57,9 @@ def create_app(test_config=None):
     @app.route("/api/")
     def api_index():
         body = NauttoBuilder()
+        body.add_namespace("nautto", LINK_RELATIONS_URL)
         body.add_control("entrypoint", url_for("api.usercollection"))
-        return json.dumps(body)
+        return Response(json.dumps(body), 200, mimetype=MASON)
 
     @app.route(LINK_RELATIONS_URL)
     def send_link_relations():
