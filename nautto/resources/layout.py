@@ -5,7 +5,7 @@ from flask import Response, request, url_for
 from flask_restful import Resource
 from sqlalchemy.exc import IntegrityError
 
-from nautto.models import Layout, User, Widget
+from nautto.models import User, Widget, Layout
 from nautto import db
 from nautto.utils import NauttoBuilder, create_error_response
 from nautto.constants import *
@@ -176,3 +176,31 @@ class LayoutItem(Resource):
         db.session.commit()
 
         return Response(status=204)
+
+
+class LayoutOfSet(Resource):
+
+    def get(self, set, layout):
+        db_layout = Layout.query.filter_by(id=layout).first()
+        if db_layout is None:
+            return create_error_response(
+                404, "Not found",
+                f'No layout was found with the id {layout}'
+            )
+
+        body = NauttoBuilder(
+            id=db_layout.id,
+            name=db_layout.name,
+            description=db_layout.description,
+        )
+        url_for_item = url_for('api.layoutitem', layout=layout)
+        body.add_namespace("nautto", LINK_RELATIONS_URL)
+        body.add_control("self", url_for_item)
+        body.add_control("profile", LAYOUT_PROFILE)
+        body.add_control("collection", url_for("api.layoutcollection"))
+        body.add_control("author", url_for("api.useritem", user=db_layout.user_id))
+        body.add_control_delete_resource('layout', url_for_item)
+        body.add_control_modify_resource('layout', url_for_item)
+        body.add_control('up', url_for("api.setitem", set=set))
+
+        return Response(json.dumps(body), 200, mimetype=MASON)

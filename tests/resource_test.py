@@ -475,12 +475,14 @@ class TestLayoutItem(object):
         _check_control_get_method("profile", client, body)
         _check_control_get_method("collection", client, body)
         _check_control_put_method("edit", client, body, _get_layout_json())
-        _check_control_delete_method("nautto:delete", client, body)
         resp = client.get(self.INVALID_URL)
         assert resp.status_code == 404
         for item in body["items"]:
             _check_control_get_method("self", client, item)
             _check_control_get_method("profile", client, item)
+            resp_item = client.get(item["@controls"]["self"]["href"])
+            _check_control_get_method("up", client, resp_item.json)
+        _check_control_delete_method("nautto:delete", client, body)
 
     def test_put(self, client):
         valid = _get_layout_json()
@@ -592,12 +594,14 @@ class TestSetItem(object):
         _check_control_get_method("profile", client, body)
         _check_control_get_method("collection", client, body)
         _check_control_put_method("edit", client, body, _get_set_json())
-        _check_control_delete_method("nautto:delete", client, body)
         resp = client.get(self.INVALID_URL)
         assert resp.status_code == 404
         for item in body["items"]:
             _check_control_get_method("self", client, item)
             _check_control_get_method("profile", client, item)
+            resp_item = client.get(item["@controls"]["self"]["href"])
+            _check_control_get_method("up", client, resp_item.json)
+        _check_control_delete_method("nautto:delete", client, body)
 
     def test_put(self, client):
         valid = _get_set_json()
