@@ -144,7 +144,9 @@ class LayoutItem(Resource):
             db_layout.id = request.json["id"]
 
         db_layout.name = request.json["name"]
-        db_layout.description = request.json["description"]
+        
+        if ('description' in request.json):
+            db_layout.description = request.json["description"]
 
         if ('items' in request.json):
             for item in request.json['items']:

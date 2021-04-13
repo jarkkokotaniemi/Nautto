@@ -143,9 +143,11 @@ class WidgetItem(Resource):
             db_widget.id = request.json["id"]
 
         db_widget.name = request.json["name"]
-        db_widget.description = request.json["description"]
         db_widget.type = request.json["type"]
         db_widget.content = request.json["content"]
+        
+        if ('description' in request.json):
+            db_widget.description = request.json["description"]
 
         try:
             db.session.commit()

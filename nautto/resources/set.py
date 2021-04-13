@@ -144,7 +144,9 @@ class SetItem(Resource):
             db_set.id = request.json["id"]
 
         db_set.name = request.json["name"]
-        db_set.description = request.json["description"]
+        
+        if ('description' in request.json):
+            db_set.description = request.json["description"]
 
         if ('items' in request.json):
             for item in request.json['items']:
