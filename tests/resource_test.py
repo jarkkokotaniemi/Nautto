@@ -640,3 +640,26 @@ class TestSetItem(object):
         assert resp.status_code == 404
         resp = client.delete(self.INVALID_URL)
         assert resp.status_code == 404
+
+
+class TestEntryPoint(object):
+
+    RESOURCE_URL = "/api/"
+
+    def test_get(self, client):
+
+        resp = client.get(self.RESOURCE_URL)
+        assert resp.status_code == 200
+        body = json.loads(resp.data)
+        _check_namespace(client, body)
+        _check_control_get_method("entrypoint", client, body)
+
+
+class TestIndex(object):
+
+    RESOURCE_URL = "/"
+
+    def test_get(self, client):
+
+        resp = client.get(self.RESOURCE_URL)
+        assert resp.status_code == 200
