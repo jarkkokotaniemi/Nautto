@@ -5,9 +5,9 @@ name: Python application
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, deploy ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, deploy ]
 
 jobs:
   build:
@@ -27,4 +27,4 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Test with pytest
       run: |
-        python -m pytest
+        python -m pytest --cov=nautto
