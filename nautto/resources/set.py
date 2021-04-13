@@ -18,6 +18,7 @@ class SetsByUserCollection(Resource):
         body.add_namespace("nautto", LINK_RELATIONS_URL)
         body.add_control("self", url_for("api.setsbyusercollection", user=user))
         body.add_control_add_resource('set', url_for("api.setsbyusercollection", user=user))
+        body.add_control("author", url_for("api.useritem", user=user))
         body.add_control("nautto:sets-all", url_for("api.setcollection"))
         body["items"] = []
         for db_set in Set.query.filter_by(user_id=user):
@@ -49,9 +50,11 @@ class SetsByUserCollection(Resource):
 
         set = Set(
             name=request.json["name"],
-            description=request.json["description"],
             user=db_user
         )
+
+        if ('description' in request.json):
+            set.description = request.json["description"]
 
         if ('id' in request.json):
             set.id = request.json["id"]
@@ -141,7 +144,9 @@ class SetItem(Resource):
             db_set.id = request.json["id"]
 
         db_set.name = request.json["name"]
-        db_set.description = request.json["description"]
+        
+        if ('description' in request.json):
+            db_set.description = request.json["description"]
 
         if ('items' in request.json):
             for item in request.json['items']:

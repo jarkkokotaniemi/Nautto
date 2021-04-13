@@ -18,6 +18,7 @@ class LayoutsByUserCollection(Resource):
         body.add_namespace("nautto", LINK_RELATIONS_URL)
         body.add_control("self", url_for("api.layoutsbyusercollection", user=user))
         body.add_control_add_resource('layout', url_for("api.layoutsbyusercollection", user=user))
+        body.add_control("author", url_for("api.useritem", user=user))
         body.add_control("nautto:layouts-all", url_for("api.layoutcollection"))
         body["items"] = []
         for db_layout in Layout.query.filter_by(user_id=user):
@@ -49,9 +50,11 @@ class LayoutsByUserCollection(Resource):
 
         layout = Layout(
             name=request.json["name"],
-            description=request.json["description"],
             user=db_user
         )
+
+        if ('description' in request.json):
+            layout.description = request.json["description"]
 
         if ('id' in request.json):
             layout.id = request.json["id"]
@@ -141,7 +144,9 @@ class LayoutItem(Resource):
             db_layout.id = request.json["id"]
 
         db_layout.name = request.json["name"]
-        db_layout.description = request.json["description"]
+        
+        if ('description' in request.json):
+            db_layout.description = request.json["description"]
 
         if ('items' in request.json):
             for item in request.json['items']:
@@ -181,6 +186,7 @@ class LayoutItem(Resource):
 class LayoutOfSet(Resource):
 
     def get(self, set, layout):
+
         db_layout = Layout.query.filter_by(id=layout).first()
         if db_layout is None:
             return create_error_response(

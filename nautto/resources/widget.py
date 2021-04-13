@@ -18,6 +18,7 @@ class WidgetsByUserCollection(Resource):
         body.add_namespace("nautto", LINK_RELATIONS_URL)
         body.add_control("self", url_for("api.widgetsbyusercollection", user=user))
         body.add_control_add_resource('widget', url_for("api.widgetsbyusercollection", user=user))
+        body.add_control("author", url_for("api.useritem", user=user))
         body.add_control("nautto:widgets-all", url_for("api.widgetcollection"))
         body["items"] = []
         for db_widget in Widget.query.filter_by(user_id=user):
@@ -50,11 +51,13 @@ class WidgetsByUserCollection(Resource):
 
         widget = Widget(
             name=request.json["name"],
-            description=request.json["description"],
             type=request.json["type"],
             content=request.json["content"],
             user=db_user
         )
+
+        if ('description' in request.json):
+            widget.description = request.json["description"]
 
         if ('id' in request.json):
             widget.id = request.json["id"]
@@ -140,9 +143,11 @@ class WidgetItem(Resource):
             db_widget.id = request.json["id"]
 
         db_widget.name = request.json["name"]
-        db_widget.description = request.json["description"]
         db_widget.type = request.json["type"]
         db_widget.content = request.json["content"]
+        
+        if ('description' in request.json):
+            db_widget.description = request.json["description"]
 
         try:
             db.session.commit()

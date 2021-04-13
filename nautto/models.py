@@ -74,6 +74,10 @@ class Set(db.Model):
             "description": "Description of the set",
             "type": "string"
         }
+        props["items"] = {
+            "description": "Layout ids of the set",
+            "type": "array"
+        }
         return schema
 
 class Layout(db.Model):
@@ -106,6 +110,10 @@ class Layout(db.Model):
         props["description"] = {
             "description": "Description of the layout",
             "type": "string"
+        }
+        props["items"] = {
+            "description": "Widget ids of the layout",
+            "type": "array"
         }
         return schema
 

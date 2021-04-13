@@ -84,9 +84,9 @@ class UserItem(Resource):
         body.add_control("self", url_for_item)
         body.add_control("profile", USER_PROFILE)
         body.add_control("collection", url_for("api.usercollection"))
-        body.add_control("nautto:widgets-by", url_for("api.widgetcollection"))
-        #body.add_control("nautto:layouts-by", url_for("api.layoutcollection"))
-        #body.add_control("nautto:sets-by", url_for("api.setcollection"))
+        body.add_control("nautto:widgets-by", url_for("api.widgetsbyusercollection", user=user))
+        body.add_control("nautto:layouts-by", url_for("api.layoutsbyusercollection", user=user))
+        body.add_control("nautto:sets-by", url_for("api.setsbyusercollection", user=user))
         body.add_control_delete_resource('user', url_for_item)
         body.add_control_modify_resource('user', url_for_item)
 
