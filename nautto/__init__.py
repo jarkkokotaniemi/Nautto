@@ -1,10 +1,12 @@
 import os
+import json
 
-from flask import Flask
+from flask import Flask, Response, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.engine import Engine
 from sqlalchemy import event
 
+from nautto.utils import NauttoBuilder
 from nautto.constants import *
 
 db = SQLAlchemy()
@@ -50,7 +52,13 @@ def create_app(test_config=None):
 
     @app.route("/")
     def index():
-        return "Nautto index!"
+        return "Go to /api/ for entrypoint"
+
+    @app.route("/api/")
+    def api_index():
+        body = NauttoBuilder()
+        body.add_control("entrypoint", url_for("api.usercollection"))
+        return json.dumps(body)
 
     @app.route(LINK_RELATIONS_URL)
     def send_link_relations():
