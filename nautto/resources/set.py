@@ -115,7 +115,7 @@ class SetItem(Resource):
         body["items"] = []
         for layout in db_set.layouts:
             item = NauttoBuilder(id=layout.id, name=layout.name)
-            item.add_control("self", url_for("api.layoutitem", layout=layout.id))
+            item.add_control("self", url_for("api.layoutofset", layout=layout.id, set=set))
             item.add_control("profile", LAYOUT_PROFILE)
             body["items"].append(item)
 

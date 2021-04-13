@@ -5,7 +5,7 @@ from flask import Response, request, url_for
 from flask_restful import Resource
 from sqlalchemy.exc import IntegrityError
 
-from nautto.models import Layout, User, Widget
+from nautto.models import User, Widget, Layout
 from nautto import db
 from nautto.utils import NauttoBuilder, create_error_response
 from nautto.constants import *
@@ -182,9 +182,11 @@ class LayoutItem(Resource):
 
         return Response(status=204)
 
+
 class LayoutOfSet(Resource):
 
-    def get(self,set,layout):
+    def get(self, set, layout):
+
         db_layout = Layout.query.filter_by(id=layout).first()
         if db_layout is None:
             return create_error_response(
