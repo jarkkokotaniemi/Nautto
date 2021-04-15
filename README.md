@@ -14,8 +14,18 @@ To run the application you should run the following commands (on PowerShell):
 ```powersehll
 git clone https://github.com/jarkkokotaniemi/Nautto
 cd ./nautto
-pip3 install -r requirements.txt
+pip install -r requirements.txt
+pip install .
 $env:FLASK_APP="nautto"
+```
+On cmd:
+
+```cmd
+git clone https://github.com/jarkkokotaniemi/Nautto
+cd .\nautto
+pip install -r requirements.txt
+pip install .
+set FLASK_APP=nautto
 ```
 
 ## Initialize the database
