@@ -7,6 +7,10 @@
 * Student 1. Jarkko Kotaniemi, jarkko.kotaniemi@gmail.com
 * Student 2. Vili Tiinanen, vili.tiinanen@live.fi
 
+## Remote access to the api
+https://nautto.herokuapp.com/
+
+
 ## Installation
 
 To run the application you should run the following commands (on PowerShell):
