@@ -72,4 +72,4 @@ flask run
 
 ## Database dump
 
-Database dump is in the dump folder
+Database dump is in the "instance" -folder
