@@ -53,14 +53,17 @@ We discussed the third deadline. We checked the state machine map. We looked at 
 *ONLY USED BY COURSE STAFF: Additional comments from the course staff*
 
 ## Meeting 4.
-* **DATE:**
-* **ASSISTANTS:**
+* **DATE:** 16.4.2021
+* **ASSISTANTS:** Mika Oja
 
 ### Minutes
-*Summary of what was discussed during the meeting*
+We checked out the implementation of the API. Some changes needed.
 
 ### Action points
-*List here the actions points discussed with assistants*
+* Add missing lines to the pytest report
+* Sources to some functions taken from elsewhere
+* Layout item PUT -> PATCH
+* Do not change ID in PUT
 
 
 ### Comments from staff
