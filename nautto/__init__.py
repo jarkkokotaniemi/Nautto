@@ -52,7 +52,11 @@ def create_app(test_config=None):
 
     @app.route("/")
     def index():
-        return "Go to /api/ for entrypoint"
+        return "Go to /api/ for api entrypoint OR to /admin/ for admin client"
+
+    @app.route("/admin/")
+    def admin_site():
+        return app.send_static_file("html/admin.html")
 
     @app.route("/api/")
     def api_index():

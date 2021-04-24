@@ -1,0 +1,56 @@
+form label {
+  font-weight: bold;
+  display: block; /*Necessary for the first letter*/
+}
+form label:first-letter {
+  text-transform: uppercase;
+}
+.notification {
+  border-radius: 4px;
+  border: 1px solid black;
+  text-align: center;
+  display: none;
+  font-weight: bold;
+}
+.error {
+  color: darkred;
+}
+.success {
+  color: green;
+}
+table {
+  border-collapse: collapse;
+  border: 1px solid black;
+}
+th, td {
+  text-align: left;
+  padding: 8px;
+}
+th {
+  background-color: #a7a5a5;
+}
+tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+input[type=submit] {
+  margin-top: 1rem;
+}
+.navigation {
+  margin: 1rem;
+}
+a:link, a:visited {
+  background-color: white;
+  color: black;
+  border: 2px solid rgb(60, 54, 143);
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+}
+a:hover, a:active {
+  background-color: rgb(60, 54, 143);
+  color: white;
+}
+a + a {
+  margin-left: 1rem;
+}
