@@ -12,6 +12,12 @@ form label:first-letter {
   display: none;
   font-weight: bold;
 }
+.preview {
+  border-radius: 4px;
+  border: 1px solid black;
+  display: none;
+  margin-top: 1rem;
+}
 .error {
   color: darkred;
 }
