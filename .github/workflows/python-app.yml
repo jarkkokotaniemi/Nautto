@@ -27,4 +27,4 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Test with pytest
       run: |
-        python -m pytest --cov=nautto -v
+        python -m pytest --cov=nautto --cov-report=term-missing -v
