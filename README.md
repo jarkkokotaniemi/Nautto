@@ -10,6 +10,9 @@
 ## Remote access to the api
 https://nautto.herokuapp.com/
 
+## Remote access to the client
+https://nautto.herokuapp.com/admin/
+
 ## Api documentation
 https://nautto.docs.apiary.io/#
 
@@ -71,6 +74,11 @@ Run command:
 ```powershell
 flask run
 ```
+
+## Run the Client
+
+Same as running the API.
+The client resides in route /admin.
 
 ## Database dump
 
