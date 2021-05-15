@@ -10,6 +10,8 @@
 ## Remote access to the api
 https://nautto.herokuapp.com/
 
+## Api documentation
+https://nautto.docs.apiary.io/#
 
 ## Installation
 
